@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity(name = "tipoProduto")
@@ -23,13 +25,14 @@ public class ProductTypeEntity {
     @Length(min = 4, max = 50)
     private String tipo;
 
+    @Column(nullable = false)
     @PositiveOrZero
-    private float valor;
+    private BigDecimal valor;
 
     @Column(nullable = false)
     private boolean ativo;
 
-    public ProductTypeEntity(String tipo, float valor) {
+    public ProductTypeEntity(String tipo, BigDecimal valor) {
         this.tipo = tipo;
         this.valor = valor;
         this.ativo = true;
