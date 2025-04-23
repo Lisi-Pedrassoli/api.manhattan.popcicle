@@ -27,12 +27,12 @@ public class ProductTypeEntity {
 
     @Column(nullable = false)
     @PositiveOrZero
-    private BigDecimal valor;
+    private Float valor;
 
     @Column(nullable = false)
     private boolean ativo;
 
-    public ProductTypeEntity(String tipo, BigDecimal valor) {
+    public ProductTypeEntity(String tipo, Float valor) {
         this.tipo = tipo;
         this.valor = valor;
         this.ativo = true;

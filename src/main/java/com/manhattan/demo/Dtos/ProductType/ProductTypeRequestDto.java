@@ -13,6 +13,6 @@ public record ProductTypeRequestDto(
         String tipo,
         @NotNull
         @PositiveOrZero
-        BigDecimal valor
+        float valor
 ) {
 }
