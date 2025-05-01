@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public final class SellerMapper {
     public static SellerResponseDto toDto(SellerEntity seller){
-        return new SellerResponseDto(seller.getId(), seller.getTelefone(), seller.getRecebimento(), seller.getNome(),
+        return new SellerResponseDto(seller.getId(), seller.getTelefone(), seller.getComissao(), seller.getNome(),
                 seller.getAtivo());
     }
 

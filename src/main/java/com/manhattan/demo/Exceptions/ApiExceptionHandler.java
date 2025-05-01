@@ -3,7 +3,6 @@ package com.manhattan.demo.Exceptions;
 import com.manhattan.demo.Exceptions.Authorization.InconsistentPasswordException;
 import com.manhattan.demo.Exceptions.Authorization.LoginFailedException;
 import com.manhattan.demo.Exceptions.Config.ProblemDetails;
-import com.manhattan.demo.Exceptions.Customer.CustomerNotFoundException;
 import com.manhattan.demo.Exceptions.Product.NotEnoughStockException;
 import com.manhattan.demo.Exceptions.Product.ProductAlreadyHasRecipeException;
 import com.manhattan.demo.Exceptions.Product.ProductNotFoundException;
@@ -210,19 +209,6 @@ public class ApiExceptionHandler {
     @ExceptionHandler(SellerNotFoundException.class)
     public ResponseEntity<ProblemDetails> handleException(SellerNotFoundException ex, HttpServletRequest request) {
         String title = "Vendedor não encontrado";
-        String detail = ex.getMessage();
-        ProblemDetails problemDetails = new ProblemDetails(title,
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                detail,
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetails);
-    }
-
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<ProblemDetails> handleException(CustomerNotFoundException ex, HttpServletRequest request) {
-        String title = "Cliente não encontrado";
         String detail = ex.getMessage();
         ProblemDetails problemDetails = new ProblemDetails(title,
                 HttpStatus.NOT_FOUND.value(),

@@ -3,7 +3,7 @@ package com.manhattan.demo.Dtos.Seller;
 public record SellerResponseDto(
         String id,
         String telefone,
-        Float recebimento,
+        Float comissao,
         String nome,
         Boolean ativo
 ) {

@@ -46,7 +46,7 @@ public class SellerService {
     public SellerResponseDto save(SellerRequestDto body){
         if(!DocumentValidator.isValidCPF(body.cpf())) throw new InvalidDocumentException();
         return SellerMapper.toDto(
-                this.repository.save(new SellerEntity(body.telefone(), body.recebimento(), body.cpf(), body.nome()))
+                this.repository.save(new SellerEntity(body.telefone(), body.comissao(), body.cpf(), body.nome()))
         );
     }
 
@@ -55,7 +55,7 @@ public class SellerService {
         seller.setAtivo(body.ativo());
         seller.setNome(body.nome());
         seller.setTelefone(body.telefone());
-        seller.setRecebimento(body.recebimento());
+        seller.setComissao(body.comissao());
         return SellerMapper.toDto(this.repository.save(seller));
     }
 

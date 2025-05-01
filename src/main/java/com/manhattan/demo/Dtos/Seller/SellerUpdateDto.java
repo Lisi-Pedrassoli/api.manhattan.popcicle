@@ -11,7 +11,7 @@ public record SellerUpdateDto(
         String telefone,
         @Positive
         @NotNull
-        Float recebimento,
+        Float comissao,
         @NotBlank
         @Length(min = 3)
         String nome,

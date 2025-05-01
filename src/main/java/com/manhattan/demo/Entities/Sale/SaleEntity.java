@@ -1,7 +1,6 @@
 package com.manhattan.demo.Entities.Sale;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.manhattan.demo.Entities.Customer.CustomerEntity;
 import com.manhattan.demo.Entities.SaleProduct.SaleProductEntity;
 import com.manhattan.demo.Entities.Seller.SellerEntity;
 import com.manhattan.demo.Enums.Sale.SaleStatus;
@@ -38,24 +37,12 @@ public class SaleEntity {
     private SaleStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id", referencedColumnName = "id")
-    private CustomerEntity cliente;
-
-    @ManyToOne
     @JoinColumn(name = "vendedor_id", referencedColumnName = "id")
     private SellerEntity vendedor;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<SaleProductEntity> produtoVenda;
-
-    public SaleEntity(CustomerEntity cliente, SellerEntity vendedor) {
-        this.dataCriacao = Instant.now().toEpochMilli();
-        this.codigo = Instant.now().toEpochMilli();
-        this.cliente = cliente;
-        this.vendedor = vendedor;
-        this.status = SaleStatus.OPENED;
-    }
 
     public SaleEntity() {
         this.dataCriacao = Instant.now().toEpochMilli();

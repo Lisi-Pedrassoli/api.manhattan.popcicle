@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/venda")
 public class SaleController {
+
     @Autowired
     private SaleService service;
 
@@ -41,11 +42,11 @@ public class SaleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body));
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> cancel(@PathVariable String id){
-//        this.service.cancel(id);
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancel(@PathVariable String id){
+        this.service.cancel(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     @PostMapping("/{id}")
     public ResponseEntity<SaleEntity> close(@PathVariable String id, @RequestBody @Valid CloseSaleDto body){
@@ -59,4 +60,9 @@ public class SaleController {
     ){
         return ResponseEntity.status(HttpStatus.OK).body(this.service.getReport(start, end));
     }
+
+//    @PutMapping
+//    public ResponseEntity<SaleProductUpdateDto> update(@RequestBody @Valid SaleEntity body) {
+//        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(body));
+//    }
 }

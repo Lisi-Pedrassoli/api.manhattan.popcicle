@@ -11,7 +11,7 @@ public record SellerRequestDto(
         String telefone,
         @Positive
         @NotNull
-        Float recebimento,
+        Float comissao,
         @Length(min = 11, max = 11)
         @NotBlank
         String cpf,

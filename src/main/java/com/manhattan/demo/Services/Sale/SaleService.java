@@ -14,7 +14,6 @@ import com.manhattan.demo.Exceptions.Sale.SaleNotFoundException;
 import com.manhattan.demo.Exceptions.Sale.SaleProductNotFoundException;
 import com.manhattan.demo.Repositories.Sale.SaleRepository;
 import com.manhattan.demo.Repositories.SaleProduct.SaleProductRepository;
-import com.manhattan.demo.Services.Customer.CustomerService;
 import com.manhattan.demo.Services.Product.ProductService;
 import com.manhattan.demo.Services.Seller.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,6 @@ public class SaleService {
     @Autowired
     private SaleRepository repository;
     @Autowired
-    private CustomerService customerService;
-    @Autowired
     private SellerService sellerService;
     @Autowired
     private ProductService productService;
@@ -39,10 +36,6 @@ public class SaleService {
 
     public SaleEntity save(SaleRequestDto body){
         SaleEntity sale = new SaleEntity();
-
-        if(body.clienteId().isPresent()){
-            sale.setCliente(this.customerService.findById(body.clienteId().get()));
-        }
 
         if(body.vendedorId().isPresent()){
             sale.setVendedor(this.sellerService.findById(body.vendedorId().get()));
@@ -83,6 +76,10 @@ public class SaleService {
 
     public SaleEntity findById(String saleId){
         return this.repository.findById(saleId).orElseThrow(SaleNotFoundException::new);
+    }
+
+    public SaleProductEntity findSeleProductById(String saleId){
+        return this.saleProductRepository.findById(saleId).orElseThrow(SaleNotFoundException::new);
     }
 
     public SaleEntity close(String saleId, CloseSaleDto body) {

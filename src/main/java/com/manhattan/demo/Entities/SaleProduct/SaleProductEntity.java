@@ -1,7 +1,6 @@
 package com.manhattan.demo.Entities.SaleProduct;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.manhattan.demo.Entities.Production.ProductionEntity;
 import com.manhattan.demo.Entities.Sale.SaleEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
@@ -56,4 +55,5 @@ public class SaleProductEntity {
         this.referenciaProduto = referenciaProduto;
         this.nome = nome;
     }
+
 }

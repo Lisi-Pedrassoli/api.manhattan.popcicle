@@ -25,7 +25,7 @@ public class SellerEntity {
 
     @Column(nullable = false)
     @Positive
-    private Float recebimento;
+    private Float comissao;
 
     @Column(nullable = false)
     @Length(min = 11, max = 11)
@@ -38,9 +38,9 @@ public class SellerEntity {
     @Column(nullable = false)
     private Boolean ativo;
 
-    public SellerEntity(String telefone, Float recebimento, String cpf, String nome) {
+    public SellerEntity(String telefone, Float comissao, String cpf, String nome) {
         this.telefone = telefone;
-        this.recebimento = recebimento;
+        this.comissao = comissao;
         this.cpf = cpf;
         this.nome = nome;
         this.ativo = true;
