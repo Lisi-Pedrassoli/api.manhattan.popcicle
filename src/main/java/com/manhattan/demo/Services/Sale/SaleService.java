@@ -57,7 +57,7 @@ public class SaleService {
                     );
                 }).toList();
 
-        sale.setProdutoVenda(listaProdutos);
+        sale.setProdutoVenda(listaProdutos); // aqui calcula o valor da venda
         sale.setTotal(listaProdutos.stream()
                 .map(saleProductEntity -> saleProductEntity.getValor() * saleProductEntity.getQuantidadeSaida())
                 .reduce(0.0f, Float::sum));
