@@ -62,7 +62,7 @@ public class SaleService {
                 .map(saleProductEntity -> saleProductEntity.getValor() * saleProductEntity.getQuantidadeSaida())
                 .reduce(0.0f, Float::sum));
 
-        System.out.println("Teste branch commit intelij 3");
+        System.out.println("Teste branch commit intelij 4");
 
         return this.repository.save(sale);
     }
