@@ -98,12 +98,14 @@ public class SaleService {
             }
 
             saleProductEntity.setQuantidadeVolta(saleProductCloseDto.quantidadeVolta());
-
             return this.saleProductRepository.save(saleProductEntity);
         }).toList();
 
         sale.getProdutoVenda().clear();
         sale.getProdutoVenda().addAll(listaProdutos);
+        sale.setTotal(listaProdutos.stream()
+                .map(saleProductEntity -> saleProductEntity.getValor() * (saleProductEntity.getQuantidadeSaida() - saleProductEntity.getQuantidadeVolta()))
+                .reduce(0.0f, Float::sum));
         sale.setStatus(SaleStatus.CLOSED);
 
         return this.repository.save(sale);

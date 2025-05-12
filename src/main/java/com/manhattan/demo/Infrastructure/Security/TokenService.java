@@ -23,9 +23,9 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             String token = JWT.create()
-                    .withIssuer("manhattan-auth")
-                    .withSubject(userEntity.getId())
-                    .withExpiresAt(this.generateExpirationDate())
+                    .withIssuer("manhattan-auth")//define em que sistema o token foi feito
+                    .withSubject(userEntity.getId()) // identifica para qual usuario o token vai
+                    .withExpiresAt(this.generateExpirationDate()) // puxa quanto tempo o token é valido
                     .sign(algorithm);
 
             return token;

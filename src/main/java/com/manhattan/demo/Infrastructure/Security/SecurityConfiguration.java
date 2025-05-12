@@ -37,18 +37,18 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()//permite que todo mundo acesse essas rotas
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated()//para acessar as outras rotas precisa estar autenticado no jwt(token)
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            this.handleAccessDenied(request, response);
+                            this.handleAccessDenied(request, response);//estoura só quando o usuario esta fazendo uma requisição que ele não pode
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            this.handleAccessDenied(request, response);
+                            this.handleAccessDenied(request, response);//token invalido, ele nem é usuario do sustema
                         })
                 )
                 .build();
