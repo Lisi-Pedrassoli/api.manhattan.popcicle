@@ -98,7 +98,13 @@ public class SaleService {
             }
 
             saleProductEntity.setQuantidadeVolta(saleProductCloseDto.quantidadeVolta());
-            return this.saleProductRepository.save(saleProductEntity);
+            this.saleProductRepository.save(saleProductEntity);
+
+            ProductEntity product = this.productService.findById(saleProductEntity.getReferenciaProduto());
+            product.setEstoque(product.getEstoque() + saleProductCloseDto.quantidadeVolta());
+            this.productService.saveRaw(product);
+
+            return saleProductEntity;
         }).toList();
 
         sale.getProdutoVenda().clear();
