@@ -63,6 +63,7 @@ public class ProductionService {
             });
             ProductEntity productEntity = recipe.getProduto();
             productEntity.setEstoque(productEntity.getEstoque() + current.quantidade());
+            productService.saveRaw(productEntity);
         });
         return this.findById(production.getId());
     }

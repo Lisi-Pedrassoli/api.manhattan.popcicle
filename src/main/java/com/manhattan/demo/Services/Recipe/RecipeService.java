@@ -37,14 +37,20 @@ public class RecipeService {
         RecipeEntity recipe = this.repository.save(new RecipeEntity(product));
 
         List<RecipeRawMaterialEntity> list = body.receitaMateriaPrimaList()
-                .stream().map(dto ->
+                .stream()
+                .filter(dto -> dto.quantidade() > 0) // Filtra quantidades zero
+                .map(dto ->
                         recipeRawMaterialService.save(
-                            new RecipeRawMaterialRequestDto(
-                                dto.materiaPrima_id(),
-                                dto.quantidade()
-                            ),
-                            recipe
-                )).toList();
+                                new RecipeRawMaterialRequestDto(
+                                        dto.materiaPrima_id(),
+                                        dto.quantidade()
+                                ),
+                                recipe
+                        )).toList();
+
+        if(list.isEmpty()) {
+            throw new IllegalArgumentException("Pelo menos uma matéria-prima com quantidade positiva deve ser fornecida");
+        }
 
         recipe.setReceitaMateriaPrima(list);
 
