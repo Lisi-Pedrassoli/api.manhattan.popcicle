@@ -18,6 +18,7 @@ import com.manhattan.demo.Services.RawMaterial.RawMaterialService;
 import com.manhattan.demo.Services.Recipe.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
@@ -73,7 +74,7 @@ public class ProductionService {
     }
 
     public List<ProductionEntity> findAll(int page, int items){
-        Pageable pageable = PageRequest.of(page, items);
+        Pageable pageable = PageRequest.of(page, items, Sort.by(Sort.Direction.DESC, "dataAtual"));
         return this.repository.findAll(pageable).getContent();
     }
 

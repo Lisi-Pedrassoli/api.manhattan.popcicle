@@ -5,6 +5,7 @@ public record SellerResponseDto(
         String telefone,
         Float comissao,
         String nome,
-        Boolean ativo
+        Boolean ativo,
+        String cpf
 ) {
 }

@@ -13,6 +13,7 @@ import com.manhattan.demo.Services.ProductType.ProductTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class ProductService {
     }
 
     public List<ProductResponseDto> findAll(int page, int items){
-        Pageable pageable = PageRequest.of(page, items);
+        Pageable pageable = PageRequest.of(page, items, Sort.by(Sort.Direction.DESC, "nome"));//ordenando por ordem alfabetica
         return ProductMapper.toDtoList(this.productRepository.findAll(pageable));
     }
 

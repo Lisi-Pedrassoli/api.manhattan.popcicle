@@ -10,7 +10,7 @@ import java.util.List;
 public final class SellerMapper {
     public static SellerResponseDto toDto(SellerEntity seller){
         return new SellerResponseDto(seller.getId(), seller.getTelefone(), seller.getComissao(), seller.getNome(),
-                seller.getAtivo());
+                seller.getAtivo(), seller.getCpf());// alterou aqui para aparecer o cpf
     }
 
     public static List<SellerResponseDto> toDtoList(Page<SellerEntity> sellersList){
