@@ -13,8 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
     // "/**" significa todos os caminhos disponíveis na aplicação, front e back se comunicam mesmo se estiverem em portas diferentes
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*") // URL do frontend
+                .allowedOrigins("http://localhost:5173") // URL do frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }

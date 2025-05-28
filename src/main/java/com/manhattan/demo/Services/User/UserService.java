@@ -47,8 +47,8 @@ public class UserService {
         return this.userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
-    public UserResponseDto update(UserUpdateDto body){
-        UserEntity userEntity = this.findByEmail(body.email());
+    public UserResponseDto update(String id, UserUpdateDto body){
+        UserEntity userEntity = this.findById(id);
         userEntity.setNome(body.nome());
         userEntity.setEmail(body.email());
         userEntity.setAtivo(body.ativo());

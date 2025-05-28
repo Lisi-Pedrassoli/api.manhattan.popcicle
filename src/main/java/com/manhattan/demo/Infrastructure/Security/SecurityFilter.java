@@ -1,10 +1,12 @@
 package com.manhattan.demo.Infrastructure.Security;
 
+import com.manhattan.demo.Exceptions.User.UserNotFoundException;
 import com.manhattan.demo.Repositories.User.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,16 +25,21 @@ public class SecurityFilter extends OncePerRequestFilter {
     private UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = this.recoverToken(request);//aqui valida meu token
-        String login = tokenService.validateToken(token);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+        try{
 
-        if(login != null){
-            UserDetails user = userRepository.findById(login).orElseThrow(RuntimeException::new);
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = this.recoverToken(request);//aqui valida meu token
+            String login = tokenService.validateToken(token);
+
+            if(login != null){
+                UserDetails user = userRepository.findById(login).orElseThrow(RuntimeException::new);
+                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            filterChain.doFilter(request, response);
+        } catch (RuntimeException | IOException | ServletException e) {
+            throw new UserNotFoundException("Not founded");
         }
-        filterChain.doFilter(request, response);
     }
 
     private String recoverToken(HttpServletRequest request){

@@ -36,9 +36,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.count());
     }
 
-    @PutMapping
-    public ResponseEntity<UserResponseDto> update(@RequestBody @Valid UserUpdateDto body) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.update(body));
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDto> update(
+            @PathVariable String id,
+            @RequestBody @Valid UserUpdateDto body
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.update(id, body));
     }
 
 //    @DeleteMapping("/{id}")
