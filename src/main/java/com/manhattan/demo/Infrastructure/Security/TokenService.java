@@ -53,8 +53,7 @@ public class TokenService {
     private Instant generateExpirationDate() {
         return OffsetDateTime
                 .now(ZoneOffset.of("-03:00")) // já pega hora em -3
-                .plusSeconds(30)
+                .plusMinutes(10)
                 .toInstant();
     }
-
 }

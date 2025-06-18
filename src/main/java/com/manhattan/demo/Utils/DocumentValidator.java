@@ -1,5 +1,5 @@
 package com.manhattan.demo.Utils;
-
+//valida o cpf
 public final class DocumentValidator {
     public static  boolean isValidDocument(String document){
         if(document.length() == 11) return isValidCPF(document);

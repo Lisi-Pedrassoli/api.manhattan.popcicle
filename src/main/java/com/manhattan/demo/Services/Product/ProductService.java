@@ -25,11 +25,11 @@ public class ProductService {
     @Autowired
     private ProductTypeService productTypeService;
 
-    public ProductResponseDto save(ProductRequestDto body){
+    public ProductResponseDto save(ProductRequestDto body) {
         ProductTypeEntity productType = this.productTypeService.findById(body.tipoProdutoId());
-        return ProductMapper.toDto(
-                this.productRepository.save(new ProductEntity(body.nome(), body.estoque(), productType))
-        );
+        ProductEntity produto = new ProductEntity(body.nome(), body.estoque(), productType);
+        produto.setAtivo(body.ativo()); // agora seta corretamente o campo ativo
+        return ProductMapper.toDto(this.productRepository.save(produto));
     }
 
     public ProductEntity saveRaw(ProductEntity product){

@@ -12,6 +12,8 @@ public record ProductRequestDto(
         @PositiveOrZero
         Integer estoque,
         @NotBlank
-        String tipoProdutoId
+        String tipoProdutoId,
+        @NotNull
+        Boolean ativo
 ) {
 }

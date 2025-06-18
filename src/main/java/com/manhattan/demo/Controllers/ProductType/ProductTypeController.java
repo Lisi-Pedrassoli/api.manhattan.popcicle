@@ -50,9 +50,9 @@ public class ProductTypeController {
         return ResponseEntity.status(HttpStatus.OK).body(this.productTypeService.update(id, body));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id){
-        this.productTypeService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> delete(@PathVariable String id){
+//        this.productTypeService.delete(id);
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+//    }
 }
