@@ -24,7 +24,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try{
 
             String token = this.recoverToken(request);//aqui valida meu token
@@ -37,7 +37,8 @@ public class SecurityFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (RuntimeException | IOException | ServletException e) {
-            throw new UserNotFoundException("Not founded");
+            System.out.println(e);
+            throw e;
         }
     }
 

@@ -4,10 +4,12 @@ import com.manhattan.demo.Dtos.Authorization.LoginRequestDto;
 import com.manhattan.demo.Dtos.Authorization.LoginResponseDto;
 import com.manhattan.demo.Dtos.Authorization.RegisterRequestDto;
 import com.manhattan.demo.Dtos.User.UserResponseDto;
+import com.manhattan.demo.Entities.User.UserEntity;
 import com.manhattan.demo.Services.Authorization.AuthorizationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +27,9 @@ public class AuthorizationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> register(@RequestBody @Valid RegisterRequestDto body){
-        return ResponseEntity.ok(authorizationService.register(body));
+    public ResponseEntity<UserResponseDto> register(@RequestBody @Valid RegisterRequestDto body,
+                                                    @AuthenticationPrincipal UserEntity usuarioLogado){
+        UserResponseDto response = authorizationService.register(body, usuarioLogado != null ? usuarioLogado.getId() : null);
+        return ResponseEntity.ok(response);
     }
 }

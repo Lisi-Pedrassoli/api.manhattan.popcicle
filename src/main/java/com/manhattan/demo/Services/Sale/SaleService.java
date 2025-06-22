@@ -14,6 +14,7 @@ import com.manhattan.demo.Exceptions.Sale.SaleNotFoundException;
 import com.manhattan.demo.Exceptions.Sale.SaleProductNotFoundException;
 import com.manhattan.demo.Repositories.Sale.SaleRepository;
 import com.manhattan.demo.Repositories.SaleProduct.SaleProductRepository;
+import com.manhattan.demo.Services.Log.LogService;
 import com.manhattan.demo.Services.Product.ProductService;
 import com.manhattan.demo.Services.Seller.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,10 @@ public class SaleService {
     private ProductService productService;
     @Autowired
     private SaleProductRepository saleProductRepository;
+    @Autowired
+    private LogService logService;
 
-    public SaleEntity save(SaleRequestDto body){
+    public SaleEntity save(SaleRequestDto body, String usuarioId){
         SaleEntity sale = new SaleEntity();
 
         if(body.vendedorId().isPresent()){
@@ -57,12 +60,16 @@ public class SaleService {
                     );
                 }).toList();
 
-        sale.setProdutoVenda(listaProdutos); // aqui calcula o valor da venda
+        sale.setProdutoVenda(listaProdutos);
         sale.setTotal(listaProdutos.stream()
                 .map(saleProductEntity -> saleProductEntity.getValor() * saleProductEntity.getQuantidadeSaida())
                 .reduce(0.0f, Float::sum));
 
-        return this.repository.save(sale);
+        SaleEntity savedSale = this.repository.save(sale);
+
+        logService.registrar(usuarioId, "Criação de venda", "Venda ID: " + savedSale.getId());
+
+        return savedSale;
     }
 
     public List<SaleEntity> getReport(Long start, Long end){
@@ -71,7 +78,7 @@ public class SaleService {
 
     public List<SaleEntity> findAll(int page, int items){
         Pageable pageable = PageRequest.of(page, items);
-        return this.repository.findAll(pageable).getContent().stream().toList();
+        return this.repository.findAll(pageable).getContent();
     }
 
     public SaleEntity findById(String saleId){
@@ -82,7 +89,7 @@ public class SaleService {
         return this.saleProductRepository.findById(saleId).orElseThrow(SaleNotFoundException::new);
     }
 
-    public SaleEntity close(String saleId, CloseSaleDto body) {
+    public SaleEntity close(String saleId, CloseSaleDto body){
         SaleEntity sale = this.findById(saleId);
 
         if (!sale.getStatus().equals(SaleStatus.OPENED)) {
@@ -104,11 +111,16 @@ public class SaleService {
         sale.getProdutoVenda().clear();
         sale.getProdutoVenda().addAll(listaProdutos);
         sale.setTotal(listaProdutos.stream()
-                .map(saleProductEntity -> saleProductEntity.getValor() * (saleProductEntity.getQuantidadeSaida() - saleProductEntity.getQuantidadeVolta()))
+                .map(saleProductEntity -> saleProductEntity.getValor() *
+                        (saleProductEntity.getQuantidadeSaida() - saleProductEntity.getQuantidadeVolta()))
                 .reduce(0.0f, Float::sum));
         sale.setStatus(SaleStatus.CLOSED);
 
-        return this.repository.save(sale);
+        SaleEntity updated = this.repository.save(sale);
+
+        logService.registrar("sistema", "Fechamento de venda", "Venda ID: " + sale.getId());
+
+        return updated;
     }
 
     public void cancel(String saleId){
@@ -122,8 +134,11 @@ public class SaleService {
             ProductEntity product = this.productService.findById(saleProductEntity.getReferenciaProduto());
             product.setEstoque(product.getEstoque() + saleProductEntity.getQuantidadeSaida());
         });
+
         sale.setStatus(SaleStatus.CANCELED);
         this.repository.save(sale);
+
+        logService.registrar("sistema", "Cancelamento de venda", "Venda ID: " + sale.getId());
     }
 
     public CountResponseDto count(){

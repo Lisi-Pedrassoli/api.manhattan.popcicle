@@ -9,6 +9,7 @@ import com.manhattan.demo.Entities.Product.ProductMapper;
 import com.manhattan.demo.Entities.ProductType.ProductTypeEntity;
 import com.manhattan.demo.Exceptions.Product.ProductNotFoundException;
 import com.manhattan.demo.Repositories.Product.ProductRepository;
+import com.manhattan.demo.Services.Log.LogService;
 import com.manhattan.demo.Services.ProductType.ProductTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -24,12 +25,18 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private ProductTypeService productTypeService;
+    @Autowired
+    private LogService logService;
 
-    public ProductResponseDto save(ProductRequestDto body) {
+    public ProductResponseDto save(ProductRequestDto body, String usuarioId) {
         ProductTypeEntity productType = this.productTypeService.findById(body.tipoProdutoId());
         ProductEntity produto = new ProductEntity(body.nome(), body.estoque(), productType);
-        produto.setAtivo(body.ativo()); // agora seta corretamente o campo ativo
-        return ProductMapper.toDto(this.productRepository.save(produto));
+        produto.setAtivo(body.ativo());
+        ProductEntity produtoSalvo = this.productRepository.save(produto);
+
+        logService.registrar(usuarioId, "Cadastro de produto", "Produto: " + body.nome());
+
+        return ProductMapper.toDto(produtoSalvo);
     }
 
     public ProductEntity saveRaw(ProductEntity product){
@@ -53,20 +60,30 @@ public class ProductService {
         return this.productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
 
-    public void delete(String id){
+    public void delete(String id, String usuarioId) {
         ProductEntity product = this.findById(id);
         product.setAtivo(false);
         this.productRepository.save(product);
+
+        logService.registrar(
+                usuarioId,
+                "Desativação de produto",
+                "Produto '" + product.getNome() + "' (ID: " + product.getId() + ") foi desativado."
+        );
     }
 
-    public ProductResponseDto update(ProductUpdateDto body, String id){
+    public ProductResponseDto update(ProductUpdateDto body, String id, String usuarioId){
         ProductEntity product = this.findById(id);
         ProductTypeEntity productType = this.productTypeService.findById(body.tipoProdutoId());
         product.setAtivo(body.ativo());
         product.setNome(body.nome());
         product.setEstoque(body.estoque());
         product.setTipoProduto(productType);
-        return ProductMapper.toDto(this.productRepository.save(product));
+        ProductEntity produtoAtualizado = this.productRepository.save(product);
+
+        logService.registrar(usuarioId, "Atualização de produto", "Produto ID: " + id);
+
+        return ProductMapper.toDto(produtoAtualizado);
     }
 
     public CountResponseDto count(){

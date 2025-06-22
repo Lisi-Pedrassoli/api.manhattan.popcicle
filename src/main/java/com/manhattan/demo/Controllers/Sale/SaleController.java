@@ -4,11 +4,14 @@ import com.manhattan.demo.Dtos.General.CountResponseDto;
 import com.manhattan.demo.Dtos.Sale.CloseSaleDto;
 import com.manhattan.demo.Dtos.Sale.SaleRequestDto;
 import com.manhattan.demo.Entities.Sale.SaleEntity;
+import com.manhattan.demo.Entities.User.UserEntity;
+import com.manhattan.demo.Services.Log.LogService;
 import com.manhattan.demo.Services.Sale.SaleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +22,9 @@ public class SaleController {
 
     @Autowired
     private SaleService service;
+    @Autowired
+    private LogService logService;
+
 
     @GetMapping("/count")
     public ResponseEntity<CountResponseDto> count() {
@@ -38,14 +44,9 @@ public class SaleController {
     }
 
     @PostMapping
-    public ResponseEntity<SaleEntity> save(@RequestBody @Valid SaleRequestDto body){
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancel(@PathVariable String id){
-        this.service.cancel(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<SaleEntity> save(@RequestBody @Valid SaleRequestDto body,
+                                           @AuthenticationPrincipal UserEntity usuario){
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body, usuario.getId()));
     }
 
     @PostMapping("/{id}")
@@ -60,9 +61,4 @@ public class SaleController {
     ){
         return ResponseEntity.status(HttpStatus.OK).body(this.service.getReport(start, end));
     }
-
-//    @PutMapping
-//    public ResponseEntity<SaleProductUpdateDto> update(@RequestBody @Valid SaleEntity body) {
-//        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(body));
-//    }
 }

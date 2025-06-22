@@ -4,11 +4,13 @@ import com.manhattan.demo.Dtos.General.CountResponseDto;
 import com.manhattan.demo.Dtos.RawMaterial.RawMaterialRequestDto;
 import com.manhattan.demo.Dtos.RawMaterial.RawMaterialResponseDto;
 import com.manhattan.demo.Dtos.RawMaterial.RawMaterialUpdateDto;
+import com.manhattan.demo.Entities.User.UserEntity;
 import com.manhattan.demo.Services.RawMaterial.RawMaterialService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,19 +41,17 @@ public class RawMaterialController {
     @PutMapping("/{id}")
     public ResponseEntity<RawMaterialResponseDto> update(
             @RequestBody @Valid RawMaterialUpdateDto body,
-            @PathVariable String id){
-        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(body, id));
+            @PathVariable String id,
+            @AuthenticationPrincipal UserEntity usuario
+    ){
+        // ✅ adicionando usuario.getId() para log
+        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(body, id, usuario.getId()));
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> delete(@PathVariable String id){
-//        this.service.delete(id);
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
-
     @PostMapping
-    public ResponseEntity<RawMaterialResponseDto> save(@RequestBody @Valid RawMaterialRequestDto body){
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body));
+    public ResponseEntity<RawMaterialResponseDto> save(@RequestBody @Valid RawMaterialRequestDto body,
+                                                       @AuthenticationPrincipal UserEntity usuario){
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body, usuario.getId()));
     }
 
     @GetMapping("/report")
@@ -59,5 +59,14 @@ public class RawMaterialController {
             @RequestParam(value = "start") int start,
             @RequestParam(value = "end") int end){
         return ResponseEntity.status(HttpStatus.OK).body(this.service.findReport(start, end));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserEntity usuario
+    ) {
+        this.service.delete(id, usuario.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

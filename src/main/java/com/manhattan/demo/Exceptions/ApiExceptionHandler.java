@@ -7,6 +7,7 @@ import com.manhattan.demo.Exceptions.Product.NotEnoughStockException;
 import com.manhattan.demo.Exceptions.Product.ProductAlreadyHasRecipeException;
 import com.manhattan.demo.Exceptions.Product.ProductNotFoundException;
 import com.manhattan.demo.Exceptions.ProductType.ProductTypeNotFoundException;
+import com.manhattan.demo.Exceptions.Production.InvalidDateException;
 import com.manhattan.demo.Exceptions.Production.ProductionNotFoundException;
 import com.manhattan.demo.Exceptions.Production.SameStatusException;
 import com.manhattan.demo.Exceptions.RawMaterial.InsufficientStockException;
@@ -287,6 +288,19 @@ public class ApiExceptionHandler {
     @ExceptionHandler(InconsistentProductQuantityException.class)
     public ResponseEntity<ProblemDetails> handleException(InconsistentProductQuantityException ex, HttpServletRequest request) {
         String title = "Não foi possível fechar a venda";
+        String detail = ex.getMessage();
+        ProblemDetails problemDetails = new ProblemDetails(title,
+                HttpStatus.NOT_ACCEPTABLE.value(),
+                HttpStatus.NOT_ACCEPTABLE.getReasonPhrase(),
+                detail,
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(problemDetails);
+    }
+
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<ProblemDetails> handleException(InvalidDateException ex, HttpServletRequest request) {
+        String title = "Não foi criar a produção";
         String detail = ex.getMessage();
         ProblemDetails problemDetails = new ProblemDetails(title,
                 HttpStatus.NOT_ACCEPTABLE.value(),

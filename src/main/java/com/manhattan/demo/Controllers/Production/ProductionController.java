@@ -3,11 +3,13 @@ package com.manhattan.demo.Controllers.Production;
 import com.manhattan.demo.Dtos.General.CountResponseDto;
 import com.manhattan.demo.Dtos.Production.ProductionDto;
 import com.manhattan.demo.Entities.Production.ProductionEntity;
+import com.manhattan.demo.Entities.User.UserEntity;
 import com.manhattan.demo.Services.Production.ProductionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,12 +17,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/producao")
 public class ProductionController {
+
     @Autowired
     private ProductionService service;
 
     @PostMapping
-    public ResponseEntity<ProductionEntity> save(@RequestBody @Valid ProductionDto body){
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body));
+    public ResponseEntity<ProductionEntity> save(
+            @RequestBody @Valid ProductionDto body,
+            @AuthenticationPrincipal UserEntity usuario) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(this.service.save(body, usuario.getId()));
     }
 
     @GetMapping("/{id}")
@@ -50,7 +56,11 @@ public class ProductionController {
     }
 
     @PutMapping("/{id}/{status}")
-    public ResponseEntity<ProductionEntity> updateStatus(@PathVariable String id, @PathVariable boolean status){
-        return ResponseEntity.status(HttpStatus.OK).body(this.service.updateStatus(id, status));
+    public ResponseEntity<ProductionEntity> updateStatus(
+            @PathVariable String id,
+            @PathVariable boolean status,
+            @AuthenticationPrincipal UserEntity usuario) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.service.updateStatus(id, status, usuario.getId()));
     }
 }

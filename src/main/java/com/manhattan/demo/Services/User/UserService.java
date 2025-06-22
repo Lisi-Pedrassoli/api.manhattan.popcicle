@@ -7,6 +7,7 @@ import com.manhattan.demo.Entities.User.UserMapper;
 import com.manhattan.demo.Exceptions.User.UserNotFoundException;
 import com.manhattan.demo.Repositories.User.UserRepository;
 import com.manhattan.demo.Entities.User.UserEntity;
+import com.manhattan.demo.Services.Log.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private LogService logService;
 
     public UserEntity findByEmail(String email){
         return this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
@@ -47,20 +50,28 @@ public class UserService {
         return this.userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
-    public UserResponseDto update(String id, UserUpdateDto body){
+    public UserResponseDto update(String id, UserUpdateDto body, String usuarioIdExecutor){
         UserEntity userEntity = this.findById(id);
         userEntity.setNome(body.nome());
         userEntity.setEmail(body.email());
         userEntity.setAtivo(body.ativo());
+
         if(body.senha().isPresent()){
             userEntity.setSenha(passwordEncoder.encode(body.senha().get()));
         }
-        return UserMapper.toDto(this.userRepository.save(userEntity));
+
+        UserEntity updated = this.userRepository.save(userEntity);
+
+        logService.registrar(usuarioIdExecutor, "Atualização de usuário", "ID: " + id + ", Nome: " + userEntity.getNome());
+
+        return UserMapper.toDto(updated);
     }
 
-    public void delete(String userId){
+    public void delete(String userId, String usuarioIdExecutor){
         UserEntity userEntity = this.findById(userId);
         userEntity.setAtivo(false);
         this.save(userEntity);
+
+        logService.registrar(usuarioIdExecutor, "Desativação de usuário", "ID: " + userId + ", Nome: " + userEntity.getNome());
     }
 }

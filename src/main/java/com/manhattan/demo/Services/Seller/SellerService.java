@@ -9,6 +9,7 @@ import com.manhattan.demo.Entities.Seller.SellerMapper;
 import com.manhattan.demo.Exceptions.Seller.InvalidDocumentException;
 import com.manhattan.demo.Exceptions.Seller.SellerNotFoundException;
 import com.manhattan.demo.Repositories.Seller.SellerRepository;
+import com.manhattan.demo.Services.Log.LogService;
 import com.manhattan.demo.Utils.DocumentValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,9 @@ import java.util.List;
 public class SellerService {
     @Autowired
     private SellerRepository repository;
+
+    @Autowired
+    private LogService logService;
 
     public List<SellerResponseDto> findAll(int page, int items){
         Pageable pageable = PageRequest.of(page, items);
@@ -43,26 +47,37 @@ public class SellerService {
         return this.repository.findById(id).orElseThrow(SellerNotFoundException::new);
     }
 
-    public SellerResponseDto save(SellerRequestDto body){
+    public SellerResponseDto save(SellerRequestDto body, String usuarioId){
         if(!DocumentValidator.isValidCPF(body.cpf())) throw new InvalidDocumentException();
-        return SellerMapper.toDto(
-                this.repository.save(new SellerEntity(body.telefone(), body.comissao(), body.cpf(), body.nome()))
-        );
+
+        SellerEntity seller = new SellerEntity(body.telefone(), body.comissao(), body.cpf(), body.nome());
+        SellerEntity saved = this.repository.save(seller);
+
+        logService.registrar(usuarioId, "Cadastro de vendedor", "ID: " + saved.getId() + ", Nome: " + saved.getNome());
+
+        return SellerMapper.toDto(saved);
     }
 
-    public SellerResponseDto update(String id, SellerUpdateDto body){
+    public SellerResponseDto update(String id, SellerUpdateDto body, String usuarioId){
         SellerEntity seller = this.findById(id);
         seller.setAtivo(body.ativo());
         seller.setNome(body.nome());
         seller.setTelefone(body.telefone());
         seller.setComissao(body.comissao());
-        return SellerMapper.toDto(this.repository.save(seller));
+
+        SellerEntity updated = this.repository.save(seller);
+
+        logService.registrar(usuarioId, "Atualização de vendedor", "ID: " + id + ", Novo nome: " + body.nome());
+
+        return SellerMapper.toDto(updated);
     }
 
-    public void delete(String id){
+    public void delete(String id, String usuarioId){
         SellerEntity seller = this.findById(id);
         seller.setAtivo(false);
         this.repository.save(seller);
+
+        logService.registrar(usuarioId, "Desativação de vendedor", "ID: " + id);
     }
 
     public CountResponseDto count(){

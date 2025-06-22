@@ -22,13 +22,11 @@ public class TokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
-            String token = JWT.create()
-                    .withIssuer("manhattan-auth")//define em que sistema o token foi feito
-                    .withSubject(userEntity.getId()) // identifica para qual usuario o token vai
-                    .withExpiresAt(this.generateExpirationDate()) // puxa quanto tempo o token é valido
+            return JWT.create()
+                    .withIssuer("manhattan-auth")
+                    .withSubject(userEntity.getId())
+                    .withExpiresAt(this.generateExpirationDate())
                     .sign(algorithm);
-
-            return token;
 
         } catch (JWTCreationException exception){
             throw new RuntimeException("Error creating token");
@@ -52,7 +50,7 @@ public class TokenService {
 
     private Instant generateExpirationDate() {
         return OffsetDateTime
-                .now(ZoneOffset.of("-03:00")) // já pega hora em -3
+                .now(ZoneOffset.of("-03:00"))
                 .plusMinutes(10)
                 .toInstant();
     }

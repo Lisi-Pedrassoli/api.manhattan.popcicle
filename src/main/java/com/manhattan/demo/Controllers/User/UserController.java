@@ -3,11 +3,13 @@ package com.manhattan.demo.Controllers.User;
 import com.manhattan.demo.Dtos.General.CountResponseDto;
 import com.manhattan.demo.Dtos.User.UserResponseDto;
 import com.manhattan.demo.Dtos.User.UserUpdateDto;
+import com.manhattan.demo.Entities.User.UserEntity;
 import com.manhattan.demo.Services.User.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,14 +41,16 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
             @PathVariable String id,
-            @RequestBody @Valid UserUpdateDto body
+            @RequestBody @Valid UserUpdateDto body,
+            @AuthenticationPrincipal UserEntity usuario
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.update(id, body));
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.update(id, body, usuario.getId()));
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> delete(@PathVariable String id) {
-//        this.userService.delete(id);
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//      }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id,
+                                       @AuthenticationPrincipal UserEntity usuario) {
+        this.userService.delete(id, usuario.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

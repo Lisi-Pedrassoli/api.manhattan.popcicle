@@ -4,11 +4,13 @@ import com.manhattan.demo.Dtos.General.CountResponseDto;
 import com.manhattan.demo.Dtos.Product.ProductRequestDto;
 import com.manhattan.demo.Dtos.Product.ProductResponseDto;
 import com.manhattan.demo.Dtos.Product.ProductUpdateDto;
+import com.manhattan.demo.Entities.User.UserEntity;
 import com.manhattan.demo.Services.Product.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +22,9 @@ public class ProductController {
     private ProductService service;
 
     @PostMapping
-    public ResponseEntity<ProductResponseDto> save(@RequestBody @Valid ProductRequestDto body){
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body));
+    public ResponseEntity<ProductResponseDto> save(@RequestBody @Valid ProductRequestDto body,
+                                                   @AuthenticationPrincipal UserEntity usuario){
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(body, usuario.getId()));
     }
 
     @GetMapping
@@ -49,15 +52,16 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDto> update(
             @RequestBody @Valid ProductUpdateDto body,
-            @PathVariable String id){
-        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(body, id));
+            @PathVariable String id, @AuthenticationPrincipal UserEntity usuario){
+        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(body, id, usuario.getId()));
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> delete(@PathVariable String id){
-//        this.service.delete(id);
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id,
+                                       @AuthenticationPrincipal UserEntity usuario){
+        this.service.delete(id, usuario.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     @GetMapping("/report")
     public ResponseEntity<List<ProductResponseDto>> findReport(

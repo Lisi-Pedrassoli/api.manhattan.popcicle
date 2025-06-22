@@ -7,11 +7,13 @@ import com.manhattan.demo.Entities.Production.ProductionEntity;
 import com.manhattan.demo.Entities.ProductionRecipe.ProductionRecipeEntity;
 import com.manhattan.demo.Entities.RawMaterial.RawMaterialEntity;
 import com.manhattan.demo.Entities.Recipe.RecipeEntity;
+import com.manhattan.demo.Exceptions.Production.InvalidDateException;
 import com.manhattan.demo.Exceptions.Production.ProductionNotFoundException;
 import com.manhattan.demo.Exceptions.Production.SameStatusException;
 import com.manhattan.demo.Exceptions.RawMaterial.InsufficientStockException;
 import com.manhattan.demo.Exceptions.Report.ReportException;
 import com.manhattan.demo.Repositories.Production.ProductionRepository;
+import com.manhattan.demo.Services.Log.LogService;
 import com.manhattan.demo.Services.Product.ProductService;
 import com.manhattan.demo.Services.ProductionRecipe.ProductionRecipeService;
 import com.manhattan.demo.Services.RawMaterial.RawMaterialService;
@@ -38,18 +40,29 @@ public class ProductionService {
     private RawMaterialService rawMaterialService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private LogService logService;
 
-    public ProductionEntity save(ProductionDto body){
+    public ProductionEntity save(ProductionDto body, String usuarioId){
+
+        if (body.vencimento().isBefore(body.dataAtual())) {
+            throw new InvalidDateException();
+        }
+
         ProductionEntity production = this.repository.save(new ProductionEntity(body.dataAtual(), body.vencimento()));
 
         body.receita().forEach(current -> {
             RecipeEntity recipe = recipeService.findById(current.receitaId());
+
+
+
             this.productionRecipeService.save(
                     new ProductionRecipeEntity(
                             current.quantidade(),
                             production,
                             recipe
-                    )
+                    ),
+                    usuarioId
             );
             recipe.getReceitaMateriaPrima().forEach(currentRmp -> {
                 RawMaterialEntity rawMaterialEntity = currentRmp.getMateriaPrima();
@@ -66,6 +79,8 @@ public class ProductionService {
             productEntity.setEstoque(productEntity.getEstoque() + current.quantidade());
             productService.saveRaw(productEntity);
         });
+
+        logService.registrar(usuarioId, "Cadastro de produção", "ID de produção" + production.getId());
         return this.findById(production.getId());
     }
 
@@ -98,7 +113,7 @@ public class ProductionService {
         return new CountResponseDto(this.repository.count());
     }
 
-    public ProductionEntity updateStatus(String id, boolean status){
+    public ProductionEntity updateStatus(String id, boolean status, String usuarioId){
         ProductionEntity production = this.findById(id);
 
         if(production.isAtivo() == status){
@@ -113,6 +128,9 @@ public class ProductionService {
 
         production.setAtivo(status);
         this.repository.save(production);
+        String acao = status ? "Ativação de produção" : "Inativação de produção";
+        logService.registrar(usuarioId, acao, "ID da produção: " + production.getId());
+
         return this.findById(production.getId());
     }
 
