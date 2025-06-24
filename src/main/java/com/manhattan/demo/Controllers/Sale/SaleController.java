@@ -50,8 +50,10 @@ public class SaleController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<SaleEntity> close(@PathVariable String id, @RequestBody @Valid CloseSaleDto body){
-        return ResponseEntity.status(HttpStatus.OK).body(this.service.close(id, body));
+    public ResponseEntity<SaleEntity> close(@PathVariable String id,
+                                            @RequestBody @Valid CloseSaleDto body,
+                                            @AuthenticationPrincipal UserEntity usuario) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.service.close(id, body, usuario.getId()));
     }
 
     @GetMapping("/report")
@@ -61,4 +63,15 @@ public class SaleController {
     ){
         return ResponseEntity.status(HttpStatus.OK).body(this.service.getReport(start, end));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SaleEntity> update(
+            @PathVariable String id,
+            @RequestBody @Valid SaleRequestDto body,
+            @AuthenticationPrincipal UserEntity usuario) {
+
+        // Implementar método update no service
+        return ResponseEntity.status(HttpStatus.OK).body(this.service.update(id, body, usuario.getId()));
+    }
+
 }

@@ -89,7 +89,7 @@ public class SaleService {
         return this.saleProductRepository.findById(saleId).orElseThrow(SaleNotFoundException::new);
     }
 
-    public SaleEntity close(String saleId, CloseSaleDto body){
+    public SaleEntity close(String saleId, CloseSaleDto body, String usuarioId){
         SaleEntity sale = this.findById(saleId);
 
         if (!sale.getStatus().equals(SaleStatus.OPENED)) {
@@ -118,7 +118,8 @@ public class SaleService {
 
         SaleEntity updated = this.repository.save(sale);
 
-        logService.registrar("sistema", "Fechamento de venda", "Venda ID: " + sale.getId());
+        logService.registrar(usuarioId, "Fechamento de venda", "Venda ID: " + sale.getId());
+
 
         return updated;
     }
@@ -140,6 +141,64 @@ public class SaleService {
 
         logService.registrar("sistema", "Cancelamento de venda", "Venda ID: " + sale.getId());
     }
+    public SaleEntity update(String saleId, SaleRequestDto body, String usuarioId) {
+        SaleEntity sale = this.findById(saleId);
+
+        if (!sale.getStatus().equals(SaleStatus.OPENED)) {
+            throw new RuntimeException("Só é possível atualizar vendas com status ABERTO");
+        }
+
+        // Atualizar vendedor, se informado
+        if (body.vendedorId().isPresent()) {
+            sale.setVendedor(this.sellerService.findById(body.vendedorId().get()));
+        }
+
+        // Atualizar os produtos da venda
+        // Primeiro restaurar o estoque dos produtos antigos
+        sale.getProdutoVenda().forEach(saleProduct -> {
+            ProductEntity product = this.productService.findById(saleProduct.getReferenciaProduto());
+            product.setEstoque(product.getEstoque() + saleProduct.getQuantidadeSaida());
+            this.productService.saveRaw(product);
+        });
+
+        // Remover produtos antigos da venda
+        sale.getProdutoVenda().clear();
+        this.saleProductRepository.deleteAllByVenda(sale);
+
+        // Adicionar novos produtos da requisição, atualizando estoque
+        List<SaleProductEntity> newSaleProducts = body.produtoVenda()
+                .stream().map(dto -> {
+                    ProductEntity product = this.productService.findById(dto.productId());
+
+                    if (!product.isAtivo() || product.getEstoque() < dto.quantidadeSaida()) {
+                        throw new NotEnoughStockException();
+                    }
+
+                    product.setEstoque(product.getEstoque() - dto.quantidadeSaida());
+                    this.productService.saveRaw(product);
+
+                    return new SaleProductEntity(sale,
+                            product.getTipoProduto().getValor(),
+                            product.getTipoProduto().getTipo(),
+                            dto.quantidadeSaida(),
+                            product.getNome(),
+                            product.getId());
+                }).toList();
+
+        sale.getProdutoVenda().addAll(newSaleProducts);
+
+        // Recalcular total
+        sale.setTotal(newSaleProducts.stream()
+                .map(p -> p.getValor() * p.getQuantidadeSaida())
+                .reduce(0.0f, Float::sum));
+
+        SaleEntity updatedSale = this.repository.save(sale);
+
+        logService.registrar(usuarioId, "Atualização de venda", "Venda ID: " + updatedSale.getId());
+
+        return updatedSale;
+    }
+
 
     public CountResponseDto count(){
         return new CountResponseDto(this.repository.count());
