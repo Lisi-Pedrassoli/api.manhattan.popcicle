@@ -41,11 +41,13 @@ public class RecipeController {
     public ResponseEntity<RecipeEntity> update(
             @RequestBody @Valid RecipeRequestDto body,
             @PathVariable String id,
+            @RequestParam boolean status,
             @AuthenticationPrincipal UserEntity usuario
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(this.service.update(id, body, usuario.getId()));
+                .body(this.service.updateStatusAndMaterials(id, body, usuario.getId(), status));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<RecipeEntity> findById(@PathVariable String id) {

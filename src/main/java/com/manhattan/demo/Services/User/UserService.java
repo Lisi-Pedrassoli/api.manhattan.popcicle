@@ -50,22 +50,28 @@ public class UserService {
         return this.userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
-    public UserResponseDto update(String id, UserUpdateDto body, String usuarioIdExecutor){
+    public UserResponseDto update(String id, UserUpdateDto body, String usuarioIdExecutor) {
         UserEntity userEntity = this.findById(id);
+
         userEntity.setNome(body.nome());
         userEntity.setEmail(body.email());
         userEntity.setAtivo(body.ativo());
 
-        if(body.senha().isPresent()){
+        if (body.senha().isPresent()) {
             userEntity.setSenha(passwordEncoder.encode(body.senha().get()));
         }
 
         UserEntity updated = this.userRepository.save(userEntity);
 
-        logService.registrar(usuarioIdExecutor, "Atualização de usuário", "ID: " + id + ", Nome: " + userEntity.getNome());
+        logService.registrar(
+                usuarioIdExecutor,
+                "Atualização de usuário",
+                "ID: " + id + ", Nome: " + userEntity.getNome()
+        );
 
         return UserMapper.toDto(updated);
     }
+
 
     public void delete(String userId, String usuarioIdExecutor){
         UserEntity userEntity = this.findById(userId);

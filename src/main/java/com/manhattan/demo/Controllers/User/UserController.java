@@ -44,8 +44,9 @@ public class UserController {
             @RequestBody @Valid UserUpdateDto body,
             @AuthenticationPrincipal UserEntity usuario
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.update(id, body, usuario.getId()));
+        return ResponseEntity.ok(this.userService.update(id, body, usuario.getId()));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,

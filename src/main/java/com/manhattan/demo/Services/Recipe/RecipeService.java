@@ -67,31 +67,38 @@ public class RecipeService {
     }
 
     @Transactional
-    public RecipeEntity update(String id, RecipeRequestDto body, String usuarioId) {
+    public RecipeEntity updateStatusAndMaterials(String id, RecipeRequestDto body, String usuarioId, boolean status) {
         RecipeEntity recipe = this.findById(id);
 
-        // Remove matérias-primas antigas
+        // Verifica se o status atual é igual ao novo status para evitar operação desnecessária
+//        if (recipe.isAtivo() == status) {
+//            throw new SameStatusException();
+//        }
+
+        // Atualiza a lista de matérias-primas (limpa antigas e adiciona novas)
         recipe.getReceitaMateriaPrima().clear();
 
-
-        // Salva as novas matérias-primas
         List<RecipeRawMaterialEntity> list = body.receitaMateriaPrimaList()
-                .stream().map(dto ->
-                        recipeRawMaterialService.save(
-                                new RecipeRawMaterialRequestDto(
-                                        dto.materiaPrima_id(),
-                                        dto.quantidade()
-                                ),
-                                recipe
-                        )
-                ).toList();
+                .stream()
+                .map(dto -> recipeRawMaterialService.save(
+                        new RecipeRawMaterialRequestDto(dto.materiaPrima_id(), dto.quantidade()),
+                        recipe))
+                .toList();
 
         recipe.getReceitaMateriaPrima().addAll(list);
 
+        // Atualiza o status da receita
+        recipe.setAtivo(status);
+        this.repository.save(recipe);
+
+        // Registra logs
         logService.registrar(usuarioId, "Atualização de receita", "ID da receita: " + id);
+        String acao = status ? "Ativação de receita" : "Inativação de receita";
+        logService.registrar(usuarioId, acao, "ID da receita: " + recipe.getId());
 
         return recipe;
     }
+
 
     public List<RecipeEntity> findAll(int page, int items) {
         Pageable pageable = PageRequest.of(page, items);
